@@ -1,4 +1,4 @@
-const CACHE_NAME = 'firecommand-v1'
+const CACHE_NAME = 'firecommand-v3'
 const STATIC_ASSETS = ['/', '/index.html']
 
 self.addEventListener('install', (e) => {
