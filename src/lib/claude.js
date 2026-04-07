@@ -2,9 +2,13 @@
 // 프로덕션에서는 백엔드 프록시 권장
 
 const API_KEY = import.meta.env.VITE_ANTHROPIC_API_KEY
-const MODEL = 'claude-sonnet-4-20250514'
+const MODEL = 'claude-sonnet-4-6'
 
 export async function callClaude({ system, user, maxTokens = 1000 }) {
+  if (!API_KEY) {
+    throw new Error('API 키가 설정되지 않았습니다 (VITE_ANTHROPIC_API_KEY)')
+  }
+
   const response = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: {
@@ -22,8 +26,12 @@ export async function callClaude({ system, user, maxTokens = 1000 }) {
   })
 
   if (!response.ok) {
-    const err = await response.json()
-    throw new Error(err?.error?.message || '클로드 API 오류')
+    let errMsg = `HTTP ${response.status}`
+    try {
+      const err = await response.json()
+      errMsg = err?.error?.message || errMsg
+    } catch {}
+    throw new Error(errMsg)
   }
 
   const data = await response.json()
