@@ -13,7 +13,7 @@ const INITIAL_FORM = {
   특이사항: '',
 }
 
-export default function ReportScreen({ timeline, onBack }) {
+export default function ReportScreen({ timeline, keywords, mission, role, onBack }) {
   const [form, setForm] = useState(INITIAL_FORM)
   const [result, setResult] = useState('')
   const [loading, setLoading] = useState(false)
@@ -21,12 +21,36 @@ export default function ReportScreen({ timeline, onBack }) {
 
   const setField = (key, val) => setForm((f) => ({ ...f, [key]: val }))
 
-  const buildData = () => ({
-    ...SCENARIO_INFO,
-    타임라인수: timeline.length,
-    타임라인: timeline.map((t) => `${t.time} ${t.icon} ${t.label}`).join('\n'),
-    ...form,
-  })
+  const buildData = () => {
+    // 키워드 요약 (카테고리별 핵심어)
+    const keywordSummary = keywords
+      ? Object.entries(keywords)
+          .filter(([, v]) => v && v.length > 0)
+          .map(([k, v]) => `${k}: ${v.join(', ')}`)
+          .join('\n')
+      : ''
+
+    // 임무 요약 (역할별 판단 결과)
+    const missionSummary = mission
+      ? [
+          mission.priority?.length ? `우선과제: ${mission.priority.join(' / ')}` : '',
+          mission.warning?.length ? `위험판단: ${mission.warning.join(' / ')}` : '',
+          mission.info?.length ? `참고정보: ${mission.info.join(' / ')}` : '',
+        ]
+          .filter(Boolean)
+          .join('\n')
+      : ''
+
+    return {
+      ...SCENARIO_INFO,
+      보고역할: role || '미지정',
+      타임라인수: timeline.length,
+      타임라인: timeline.map((t) => `${t.time} ${t.icon} ${t.label}`).join('\n'),
+      키워드분석: keywordSummary,
+      AI임무판단: missionSummary,
+      ...form,
+    }
+  }
 
   const generate = async (type) => {
     setLoading(true)
@@ -37,16 +61,20 @@ export default function ReportScreen({ timeline, onBack }) {
       type === 'hq'
         ? `너는 소방서 현장활동 결과보고서 작성 전문가다.
 입력된 데이터를 바탕으로 공문서 형식의 보고서를 작성해라.
-형식: 전주덕진소방서 현장활동 결과보고`
+형식: 전주덕진소방서 현장활동 결과보고
+구성: 1.발생개요 2.활동내용 3.인명피해 4.재산피해 5.투입자원 6.특이사항
+키워드분석과 AI임무판단 내용을 활동내용과 특이사항에 반영해라.
+타임라인이 있으면 활동내용에 시간순으로 포함해라.`
         : `너는 소방서 대변인이다.
 입력된 데이터를 바탕으로 간결하고 명확한 언론 브리핑문을 작성해라.
-사실만 포함, 수사 중 사항 제외, 200자 이내`
+사실만 포함, 수사 중 사항은 "조사 중"으로 표기, 200자 이내.
+인명/재산 피해 현황을 포함하고 현장 상황을 요약해라.`
 
     try {
       const text = await callClaude({
         system,
         user: JSON.stringify(buildData(), null, 2),
-        maxTokens: 1200,
+        maxTokens: 1500,
       })
       setResult(text)
     } catch (e) {
@@ -73,12 +101,39 @@ export default function ReportScreen({ timeline, onBack }) {
         {/* 자동 수집 */}
         <div className="rounded-xl p-4" style={{ background: '#1a1a1a' }}>
           <p className="text-sm text-gray-400 mb-2 font-semibold">📊 자동 수집</p>
-          <div className="grid grid-cols-2 gap-2 text-sm">
+          <div className="grid grid-cols-2 gap-2 text-sm mb-2">
             <Info label="신고" value={SCENARIO_INFO.dispatchTime} />
             <Info label="도착" value={SCENARIO_INFO.arrivalTime} />
             <Info label="현장" value={SCENARIO_INFO.location} />
             <Info label="타임라인" value={`${timeline.length}건`} />
           </div>
+          {timeline.length > 0 && (
+            <div className="mt-2 space-y-1">
+              {timeline.map((t) => (
+                <div key={t.id} className="flex items-center gap-2 text-xs text-gray-400">
+                  <span className="tabular-nums text-gray-600">{t.time}</span>
+                  <span>{t.icon}</span>
+                  <span>{t.label}</span>
+                </div>
+              ))}
+            </div>
+          )}
+          {keywords && Object.values(keywords).some(v => v?.length > 0) && (
+            <div className="mt-3">
+              <p className="text-xs text-gray-600 mb-1">AI 키워드 분석</p>
+              <div className="flex flex-wrap gap-1">
+                {Object.entries(keywords)
+                  .filter(([, v]) => v?.length > 0)
+                  .flatMap(([, v]) => v)
+                  .slice(0, 12)
+                  .map((kw, i) => (
+                    <span key={i} className="text-xs px-2 py-0.5 rounded-full" style={{ background: '#1f2937', color: '#9ca3af' }}>
+                      {kw}
+                    </span>
+                  ))}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* 수동 입력 */}

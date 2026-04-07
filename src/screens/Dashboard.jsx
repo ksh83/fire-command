@@ -117,6 +117,9 @@ export default function Dashboard({ role, onRoleReset }) {
         return (
           <ReportScreen
             timeline={timeline}
+            keywords={keywords}
+            mission={mission}
+            role={role}
             onBack={() => setTab('dashboard')}
           />
         )

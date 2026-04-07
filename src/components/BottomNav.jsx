@@ -1,20 +1,14 @@
 import { ROLE_COLORS } from '../data/demoScenario'
 
-const TABS = {
-  default: [
-    { key: 'dashboard', label: '대시보드', icon: '🏠' },
-    { key: 'mission', label: '임무', icon: '📋' },
-  ],
-  대응단장: [
-    { key: 'dashboard', label: '대시보드', icon: '🏠' },
-    { key: 'mission', label: '임무', icon: '📋' },
-    { key: 'timeline', label: '타임라인', icon: '⏱' },
-    { key: 'report', label: '리포트', icon: '📝' },
-  ],
-}
+const TABS = [
+  { key: 'dashboard', label: '대시보드', icon: '🏠' },
+  { key: 'mission', label: '임무', icon: '📋' },
+  { key: 'timeline', label: '타임라인', icon: '⏱' },
+  { key: 'report', label: '리포트', icon: '📝' },
+]
 
 export default function BottomNav({ role, current, onChange }) {
-  const tabs = TABS[role] || TABS.default
+  const tabs = TABS
   const color = ROLE_COLORS[role] || '#ffffff'
 
   return (
