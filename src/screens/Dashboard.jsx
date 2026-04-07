@@ -17,8 +17,9 @@ import {
 } from '../data/demoScenario'
 import { extractKeywords } from '../agents/agentA'
 import { generateMission } from '../agents/agentB'
+import KakaoPanel from '../components/KakaoPanel'
 
-export default function Dashboard({ role }) {
+export default function Dashboard({ role, onRoleReset }) {
   const [tab, setTab] = useState('dashboard')
   const [act, setAct] = useState('act1')
   const [keywords, setKeywords] = useState(DEMO_KEYWORDS.act1)
@@ -152,6 +153,9 @@ export default function Dashboard({ role }) {
               mission={mission}
               onExpand={() => setTab('mission')}
             />
+            {role === '대원' && (
+              <KakaoPanel mission={mission} />
+            )}
           </div>
         )
     }
@@ -163,6 +167,7 @@ export default function Dashboard({ role }) {
         role={role}
         scenarioName={SCENARIO_INFO.location}
         dispatchTime={SCENARIO_INFO.dispatchTime}
+        onRoleReset={onRoleReset}
       />
       {renderContent()}
       <BottomNav role={role} current={tab} onChange={setTab} />

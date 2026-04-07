@@ -19,9 +19,14 @@ export default function App() {
     setRole(selectedRole)
   }
 
+  const handleReset = () => {
+    localStorage.removeItem(ROLE_KEY)
+    setRole(null)
+  }
+
   if (loading) return null
 
   if (!role) return <RoleSelect onSelect={handleSelect} />
 
-  return <Dashboard role={role} />
+  return <Dashboard role={role} onRoleReset={handleReset} />
 }

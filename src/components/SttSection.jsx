@@ -1,10 +1,12 @@
 import { useState, useRef } from 'react'
+import { correctSlang } from '../lib/slang'
 
 export default function SttSection({ onTranscript }) {
   const [open, setOpen] = useState(false)
   const [listening, setListening] = useState(false)
   const [lines, setLines] = useState([])
   const [interim, setInterim] = useState('')
+  const [corrections, setCorrections] = useState([])
   const recogRef = useRef(null)
 
   const startSTT = () => {
@@ -27,8 +29,12 @@ export default function SttSection({ onTranscript }) {
         else interimText += e.results[i][0].transcript
       }
       if (finalText) {
-        setLines((prev) => [...prev.slice(-20), finalText.trim()])
-        onTranscript?.(finalText.trim())
+        const { corrected, changes } = correctSlang(finalText.trim())
+        setLines((prev) => [...prev.slice(-20), corrected])
+        if (changes.length > 0) {
+          setCorrections((prev) => [...prev.slice(-5), ...changes])
+        }
+        onTranscript?.(corrected)
       }
       setInterim(interimText)
     }
@@ -104,9 +110,27 @@ export default function SttSection({ onTranscript }) {
 
           {/* 수동 입력 */}
           <ManualInput onSubmit={(t) => {
-            setLines((prev) => [...prev.slice(-20), '[수동] ' + t])
-            onTranscript?.('[수동] ' + t)
+            const { corrected, changes } = correctSlang(t)
+            setLines((prev) => [...prev.slice(-20), '[수동] ' + corrected])
+            if (changes.length > 0) {
+              setCorrections((prev) => [...prev.slice(-5), ...changes])
+            }
+            onTranscript?.('[수동] ' + corrected)
           }} />
+
+          {/* 은어 보정 내역 */}
+          {corrections.length > 0 && (
+            <div className="rounded-lg px-3 py-2" style={{ background: '#0f0f0f', border: '1px solid #374151' }}>
+              <p className="text-xs text-gray-500 mb-1">🔤 은어 보정</p>
+              <div className="flex flex-wrap gap-1">
+                {corrections.slice(-6).map((c, i) => (
+                  <span key={i} className="text-xs px-2 py-0.5 rounded-full" style={{ background: '#1f2937', color: '#9ca3af' }}>
+                    {c}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>

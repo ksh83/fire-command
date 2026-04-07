@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { ROLE_COLORS } from '../data/demoScenario'
 
-export default function Header({ role, scenarioName, dispatchTime }) {
+export default function Header({ role, scenarioName, dispatchTime, onRoleReset }) {
   const [elapsed, setElapsed] = useState('00:00')
 
   useEffect(() => {
@@ -33,13 +33,27 @@ export default function Header({ role, scenarioName, dispatchTime }) {
         borderBottom: `2px solid ${color}`,
       }}
     >
-      <span className="text-xl font-bold tracking-widest text-white">임전무퇴</span>
-      <span className="text-base font-medium text-gray-300">
+      <button
+        onClick={onRoleReset}
+        className="text-xl font-bold tracking-widest text-white active:opacity-60"
+        title="역할 재선택"
+      >
+        임전무퇴
+      </button>
+      <span className="text-sm font-medium text-gray-300 truncate mx-2 max-w-[140px]">
         {scenarioName || '대기중'}
       </span>
-      <span className="text-base font-mono text-white tabular-nums">
-        ⏱ {elapsed}
-      </span>
+      <div className="flex items-center gap-2">
+        <span
+          className="text-xs px-2 py-0.5 rounded-full font-semibold"
+          style={{ background: color + '22', color }}
+        >
+          {role}
+        </span>
+        <span className="text-sm font-mono text-white tabular-nums">
+          ⏱ {elapsed}
+        </span>
+      </div>
     </header>
   )
 }
