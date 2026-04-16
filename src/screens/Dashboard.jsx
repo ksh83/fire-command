@@ -64,9 +64,31 @@ export default function Dashboard({ role, onRoleReset }) {
     setTimeout(() => setNewMissionBanner(false), 3000)
   }
 
-  // STT 텍스트 수신 시 에이전트 A,B 호출
+  // STT 텍스트 수신 시 에이전트 A,B 호출 + 타임라인 자동 기록
   const handleTranscript = useCallback(async (text) => {
     setLoadingAgent(true)
+
+    // 타임라인: TIMELINE_TRIGGERS 키워드가 무전 텍스트에 포함되면 즉시 기록
+    TIMELINE_TRIGGERS.forEach(({ keyword, icon, label }) => {
+      if (text.includes(keyword)) {
+        setTimeline((prev) => {
+          if (prev.find((t) => t.label === label)) return prev
+          const matchLine = text.split(/[\n。.!?]/).find((l) => l.includes(keyword)) || text.slice(0, 60)
+          return [
+            ...prev,
+            {
+              id: Date.now() + Math.random(),
+              time: new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }),
+              icon,
+              label,
+              text: matchLine.trim(),
+              open: false,
+            },
+          ]
+        })
+      }
+    })
+
     try {
       const kws = await extractKeywords(text)
       if (kws) {
