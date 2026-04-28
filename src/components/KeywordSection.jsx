@@ -9,24 +9,24 @@ export default function KeywordSection({ keywords }) {
   const allKeywords = CATEGORIES.flatMap((cat) =>
     (keywords[cat] || []).map((kw) => ({ cat, kw }))
   )
-  const preview = allKeywords.slice(0, 3)
+  const preview = allKeywords.slice(0, 4)
 
   return (
     <div className="rounded-xl overflow-hidden" style={{ background: '#1a1a1a' }}>
       {/* 헤더 */}
       <button
-        className="w-full flex items-center justify-between px-4 py-3"
+        className="w-full flex items-center justify-between px-5 py-4"
         onClick={() => setOpen((o) => !o)}
       >
-        <span className="text-white font-semibold text-lg">🏷 키워드</span>
-        <span className="text-gray-400">{open ? '▲' : '▼'}</span>
+        <span className="text-white font-semibold text-xl">🏷 키워드</span>
+        <span className="text-gray-400 text-lg">{open ? '▲' : '▼'}</span>
       </button>
 
       {/* 접힘: 미리보기 태그 */}
       {!open && (
-        <div className="px-4 pb-3 flex flex-wrap gap-2">
+        <div className="px-5 pb-4 flex flex-wrap gap-2">
           {preview.length === 0 ? (
-            <span className="text-gray-500 text-sm">키워드 없음</span>
+            <span className="text-gray-500 text-base">키워드 없음</span>
           ) : (
             preview.map(({ cat, kw }) => (
               <Tag key={cat + kw} color={CATEGORY_COLORS[cat]} label={kw} />
@@ -37,13 +37,13 @@ export default function KeywordSection({ keywords }) {
 
       {/* 펼침: 카테고리별 전체 */}
       {open && (
-        <div className="px-4 pb-4 space-y-3">
+        <div className="px-5 pb-5 space-y-4">
           {CATEGORIES.map((cat) => {
             const kws = keywords[cat] || []
             if (kws.length === 0) return null
             return (
               <div key={cat}>
-                <p className="text-xs text-gray-500 mb-1">{cat}</p>
+                <p className="text-sm text-gray-400 font-semibold mb-2">{cat}</p>
                 <div className="flex flex-wrap gap-2">
                   {kws.map((kw) => (
                     <Tag key={kw} color={CATEGORY_COLORS[cat]} label={kw} />
@@ -53,7 +53,7 @@ export default function KeywordSection({ keywords }) {
             )
           })}
           {allKeywords.length === 0 && (
-            <p className="text-gray-500 text-sm">키워드 없음</p>
+            <p className="text-gray-500 text-base">키워드 없음</p>
           )}
         </div>
       )}
@@ -64,7 +64,7 @@ export default function KeywordSection({ keywords }) {
 function Tag({ color, label }) {
   return (
     <span
-      className="text-sm text-white rounded-full px-3 py-1"
+      className="text-base text-white rounded-full px-4 py-1.5"
       style={{ background: color + '33', border: `1px solid ${color}66` }}
     >
       {label}

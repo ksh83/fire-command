@@ -10,6 +10,28 @@ function MissionCard({ title, items = [], type = 'default', color }) {
     )
   }
 
+  // SOP 뱃지 카드
+  if (type === 'sop') {
+    return (
+      <div className="rounded-xl overflow-hidden" style={{ background: '#1a1a1a' }}>
+        <div className="px-4 py-3 font-semibold text-base" style={{ background: '#222', color }}>
+          {title}
+        </div>
+        <div className="px-4 py-3 flex flex-wrap gap-2">
+          {items.map((sop, i) => (
+            <span
+              key={i}
+              className="px-3 py-1.5 rounded-lg text-sm font-bold"
+              style={{ background: color + '22', border: `1px solid ${color}66`, color }}
+            >
+              {sop}
+            </span>
+          ))}
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="rounded-xl overflow-hidden" style={{ background: '#1a1a1a' }}>
       <div
@@ -137,6 +159,11 @@ function buildCards(role, mission, color) {
       title: 'ℹ️ 참고 정보',
       items: mission.info || [],
       type: 'default',
+    },
+    {
+      title: '📋 적용 SOP',
+      items: mission.sop || [],
+      type: 'sop',
     },
   ]
 

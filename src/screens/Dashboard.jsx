@@ -64,6 +64,20 @@ export default function Dashboard({ role, onRoleReset }) {
     setTimeout(() => setNewMissionBanner(false), 3000)
   }
 
+  // 실시간 로컬 키워드 즉시 반영 (API 불필요)
+  const handleLiveKeywords = useCallback((kws) => {
+    setKeywords((prev) => {
+      const merged = { ...prev }
+      Object.keys(kws).forEach((cat) => {
+        if (!merged[cat]) merged[cat] = []
+        kws[cat].forEach((k) => {
+          if (!merged[cat].includes(k)) merged[cat].push(k)
+        })
+      })
+      return merged
+    })
+  }, [])
+
   // STT 텍스트 수신 시 에이전트 A,B 호출 + 타임라인 자동 기록
   const handleTranscript = useCallback(async (text) => {
     setLoadingAgent(true)
@@ -147,7 +161,7 @@ export default function Dashboard({ role, onRoleReset }) {
         )
       default:
         return (
-          <div className="flex-1 overflow-y-auto px-4 pb-24 pt-3 space-y-3">
+          <div className="flex-1 overflow-y-auto px-5 pb-28 pt-4 space-y-4">
             {/* 데모 막 선택 */}
             <ActSelector currentAct={act} onChange={handleActChange} />
 
@@ -171,7 +185,7 @@ export default function Dashboard({ role, onRoleReset }) {
               </div>
             )}
 
-            <SttSection onTranscript={handleTranscript} />
+            <SttSection onTranscript={handleTranscript} onLiveKeywords={handleLiveKeywords} />
             <KeywordSection keywords={keywords} />
             <MissionPreview
               role={role}
